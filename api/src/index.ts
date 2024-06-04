@@ -10,12 +10,6 @@ import fs from "fs";
 dotenv.config();
 const app = express();
 
-const httpsOptions = {
-  cert: fs.readFileSync("secret/localhost.pem"),
-  key: fs.readFileSync("secret/localhost-key.pem"),
-};
-const server = https.createServer(httpsOptions, app);
-
 const port = process.env.PORT || 3008;
 
 app.use(
@@ -40,6 +34,12 @@ app.use("/col", collectionRouter);
 app.use("/web", websiteRouter);
 
 if (process.env.USE_LOCAL_RESOURCES) {
+  const httpsOptions = {
+    cert: fs.readFileSync("secret/localhost.pem"),
+    key: fs.readFileSync("secret/localhost-key.pem"),
+  };
+  const server = https.createServer(httpsOptions, app);
+
   server.listen(port, () => {
     console.log(`server started on port https://localhost:${port} `);
   });
