@@ -5,7 +5,8 @@ import { appConfig } from "../../utils/app-config";
 
 export async function getCollections(req: Request, res: Response) {
   try {
-    console.log("appconfig --- ", appConfig);
+    // console.log("appconfig --- ", appConfig);
+
     const data = await getCollectionList();
 
     res.status(200).json({ data });

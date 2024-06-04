@@ -6,3 +6,4 @@ node_modules
 dist
 temp.pdf
 secret
+storage

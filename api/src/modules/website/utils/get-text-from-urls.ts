@@ -53,36 +53,8 @@ export async function getTextFromUrls(
         };
 
         const cleanedTextContent = removeEmptyLines(textContent);
-        console.log("cleanedTextContent ====", cleanedTextContent);
 
         return { ...url, content: cleanedTextContent };
-
-        //     const textSplitter = new RecursiveCharacterTextSplitter({
-        //       chunkSize: 1000,
-        //       chunkOverlap: 200,
-        //     });
-
-        //     const docs = await textSplitter.createDocuments(
-        //       [cleanedTextContent],
-        //       [{ ...url }]
-        //     );
-
-        //     const embedder = new OllamaEmbeddings({
-        //       model: "nomic-embed-text", // default value
-        //       baseUrl: "http://localhost:11434", // default value
-        //     });
-
-        //     const client = new QdrantClient({
-        //       url: "http://localhost:6333",
-        //       port: 6333,
-        //     });
-
-        //     await QdrantVectorStore.fromDocuments(docs, embedder, {
-        //       collectionName: domain,
-        //       client: client,
-        //     });
-
-        //     return { ...url, content: cleanedTextContent };
       } catch (e) {
         console.log("error", e);
 

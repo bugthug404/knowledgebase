@@ -5,10 +5,10 @@ import axios from "axios";
 // import { JSDOM } from "jsdom/lib/jsdom/living/";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import cheerio from "cheerio";
+import { addToStore } from "../../../utils/db";
 
 export async function saveUrlData(
   url: string,
-  domain: string,
   colName: string,
   title?: string,
   pageText?: string
@@ -24,30 +24,7 @@ export async function saveUrlData(
 
     const cleanedTextContent = removeEmptyLines(textContent);
 
-    const textSplitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 500,
-      chunkOverlap: 100,
-    });
-
-    const docs = await textSplitter.createDocuments(
-      [cleanedTextContent],
-      [{ url, title }]
-    );
-
-    const embedder = new OllamaEmbeddings({
-      model: "nomic-embed-text",
-      baseUrl: "http://localhost:11434",
-    });
-
-    const client = new QdrantClient({
-      url: "http://localhost",
-      port: 6333,
-    });
-
-    await QdrantVectorStore.fromDocuments(docs, embedder, {
-      collectionName: colName,
-      client: client,
-    });
+    await addToStore(colName, cleanedTextContent);
 
     return { success: true };
   } catch (e) {

@@ -33,7 +33,7 @@ app.use("/doc", documentRouter);
 app.use("/col", collectionRouter);
 app.use("/web", websiteRouter);
 
-if (process.env.USE_LOCAL_RESOURCES) {
+if (process.env.USE_LOCAL_SSL) {
   const httpsOptions = {
     cert: fs.readFileSync("secret/localhost.pem"),
     key: fs.readFileSync("secret/localhost-key.pem"),

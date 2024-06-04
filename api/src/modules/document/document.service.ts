@@ -3,12 +3,8 @@ import { Request, Response } from "express";
 import { Buffer } from "buffer"; // Import Buffer class
 import fs from "fs";
 import { PDFExtract } from "pdf.js-extract";
-import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
-import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
-import { ChatPromptTemplate } from "langchain/prompts";
-import { pull } from "langchain/hub";
 // const { Document } = require("docxtemplater");
-import { addToStore, getLLM, getStore } from "../../utils/db";
+import { addToStore } from "../../utils/db";
 import { askChain } from "../../utils/ask-chain";
 
 export async function addDocument(req: Request, res: Response) {
@@ -67,7 +63,7 @@ export async function addDocument(req: Request, res: Response) {
       return res.status(400).send({ error: "fileType is required" });
     }
 
-    addToStore(collectionName, fullText);
+    await addToStore(collectionName, fullText);
 
     res.json({ status: "data uploaded successfully" }).status(200);
   } catch (error: any) {

@@ -1,10 +1,5 @@
-// Depricated file////////./////////////////////
-import { OllamaEmbeddings } from "@langchain/community/embeddings/ollama";
-import { QdrantVectorStore } from "@langchain/community/vectorstores/qdrant";
-import { QdrantClient } from "@qdrant/js-client-rest";
 import axios from "axios";
 import { JSDOM } from "jsdom";
-import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 
 export async function urlPageText(url: string) {
   if (url.length === 0) {

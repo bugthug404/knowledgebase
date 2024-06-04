@@ -22,6 +22,9 @@ export const connectToMongoDB = async () => {
 
 export const addToStore = async (collection: string, fullText: string) => {
   const { qdrantApiKey, qdrantUrl, useLocal } = appConfig;
+  if (!qdrantUrl) {
+    throw new Error("vector store url is required! please check your config");
+  }
 
   const textSplitter = new RecursiveCharacterTextSplitter({
     chunkSize: 1000,
@@ -29,49 +32,50 @@ export const addToStore = async (collection: string, fullText: string) => {
 
   const docs = await textSplitter.createDocuments([fullText]);
 
-  if (!useLocal && !!qdrantApiKey && !!qdrantApiKey) {
-    await QdrantVectorStore.fromDocuments(docs, getEmbeder(), {
-      collectionName: collection,
-      url: qdrantUrl,
-      apiKey: qdrantApiKey,
-    });
-  } else {
-    await QdrantVectorStore.fromDocuments(docs, getEmbeder(), {
-      collectionName: collection,
-      url: "http://localhost:6333",
-    });
-  }
+  // if (!useLocal && !!qdrantApiKey && !!qdrantApiKey) {
+  console.warn("Using addToStore ---> ", qdrantUrl, qdrantApiKey);
+  await QdrantVectorStore.fromDocuments(docs, getEmbeder(), {
+    collectionName: collection,
+    url: qdrantUrl,
+    apiKey: qdrantApiKey,
+  });
+  // } else {
+  //   await QdrantVectorStore.fromDocuments(docs, getEmbeder(), {
+  //     collectionName: collection,
+  //     url: "http://localhost:6333",
+  //   });
+  // }
 };
 
 export const getStore = async (collection?: string) => {
   const { qdrantApiKey, qdrantUrl, useLocal } = appConfig;
-  if (!useLocal && !!qdrantApiKey && !!qdrantApiKey) {
-    return await QdrantVectorStore.fromExistingCollection(getEmbeder(), {
-      url: qdrantUrl,
-      apiKey: qdrantApiKey,
-      collectionName: collection,
-    });
-  } else {
-    return await QdrantVectorStore.fromExistingCollection(getEmbeder(), {
-      url: "http://localhost:6333",
-      collectionName: collection,
-    });
-  }
+  // if (!useLocal && !!qdrantApiKey && !!qdrantApiKey) {
+  return await QdrantVectorStore.fromExistingCollection(getEmbeder(), {
+    url: qdrantUrl,
+    apiKey: qdrantApiKey,
+    collectionName: collection,
+  });
+  // } else {
+  //   return await QdrantVectorStore.fromExistingCollection(getEmbeder(), {
+  //     url: "http://localhost:6333",
+  //     collectionName: collection,
+  //   });
+  // }
 };
 
 export const getStoreClient = () => {
   const { qdrantApiKey, qdrantUrl, useLocal } = appConfig;
-  console.log("useLocal", typeof useLocal, !useLocal);
-  if (!useLocal && !!qdrantApiKey && !!qdrantApiKey) {
-    return new QdrantClient({
-      url: qdrantUrl,
-      apiKey: qdrantApiKey,
-    });
-  } else {
-    return new QdrantClient({
-      url: "http://localhost:6333",
-    });
-  }
+  // console.log("useLocal", typeof useLocal, !useLocal);
+  // if (!useLocal && !!qdrantApiKey && !!qdrantApiKey) {
+  return new QdrantClient({
+    url: qdrantUrl,
+    apiKey: qdrantApiKey,
+  });
+  // } else {
+  //   return new QdrantClient({
+  //     url: "http://localhost:6333",
+  //   });
+  // }
 };
 
 export function getEmbeder() {

@@ -9,7 +9,7 @@ export async function getCollectionList() {
 
   const list = await client.getCollections();
 
-  console.log("list", list);
+  console.log("list", list.collections.length);
   return list.collections;
 }
 

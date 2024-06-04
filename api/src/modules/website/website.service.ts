@@ -1,15 +1,7 @@
 import { Request, Response } from "express";
 
-import { QdrantClient } from "@qdrant/js-client-rest";
-import { QdrantVectorStore } from "@langchain/community/vectorstores/qdrant";
-import { OllamaEmbeddings } from "@langchain/community/embeddings/ollama";
-import { Ollama } from "@langchain/community/llms/ollama";
-import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
-import { ChatPromptTemplate } from "langchain/prompts";
-import { pull } from "langchain/hub";
 import { extractWebsiteUrl } from "./utils/extract-website-urls";
 import { PlaywrightCrawler } from "crawlee";
-import { getTextFromUrls } from "./utils/get-text-from-urls";
 import { checkExistingCollection } from "../../utils/get-collections";
 import { askChain } from "../../utils/ask-chain";
 
@@ -64,12 +56,10 @@ export async function addWebsite(req: Request, res: Response) {
       const urlo = new URL(url);
       webUrl = urlo.href;
       domain = urlo.hostname;
-      console.log("domain -- ", domain, webUrl);
     } catch (error) {
       const urlo = new URL("http://" + url);
       webUrl = urlo.href;
       domain = urlo.hostname;
-      console.log("domain2 -- ", domain, webUrl);
     }
 
     const urlRegex =
