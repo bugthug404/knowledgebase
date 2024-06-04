@@ -1,0 +1,15 @@
+{
+  "watch": [
+    "src",
+    "config"
+  ],
+  "ext": "ts",
+  "ignore": [
+    "node_modules",
+    "public",
+    "chat.ts"
+  ],
+  "exec": "node -r esm src/index.ts",
+  "delay": "3000"
+  
+}

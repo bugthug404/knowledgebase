@@ -1,0 +1,92 @@
+// import { ChatOpenAI } from "@langchain/openai";
+// import { HumanMessage, BaseMessage } from "@langchain/core/messages";
+// import { END, MessageGraph } from "@langchain/langgraph";
+// import { Ollama } from "@langchain/community/llms/ollama";
+// // This will NOT work with MessageGraph!
+// import {
+//   ChatPromptTemplate,
+//   MessagesPlaceholder,
+// } from "@langchain/core/prompts";
+// import { ToolMessage } from "@langchain/core/messages";
+// import { Calculator } from "langchain/tools/calculator";
+// import { convertToOpenAITool } from "@langchain/core/utils/function_calling";
+
+// const model = (
+//   new Ollama({
+//     baseUrl: "http://localhost:11434",
+//     model: "gemma:2b",
+//     temperature: 0,
+//   }) as any
+// ).bind({
+//   tools: [convertToOpenAITool(new Calculator())] as any,
+//   tool_choice: "auto",
+// }) as any;
+
+// const graph = new MessageGraph();
+
+// graph.addNode("oracle", async (state) => {
+//   return model.invoke(state);
+// });
+
+// graph.addEdge("oracle", END);
+
+// graph.setEntryPoint("oracle");
+
+// const runnable = graph.compile();
+
+// // For Message graph, input should always be a message or list of messages.
+// const res = await runnable.invoke(new HumanMessage("What is 1 + 1?"));
+// console.log(res);
+
+// // Interaction with LCEL
+
+// graph.addNode("oracle", model);
+
+// const prompt = ChatPromptTemplate.fromMessages([
+//   ["system", "You are a helpful assistant who always speaks in pirate dialect"],
+//   new MessagesPlaceholder("messages"),
+// ]);
+
+// const chain = prompt.pipe(model);
+
+// // State is a list of messages, but our chain expects an object input:
+// //
+// // { messages: [] }
+// //
+// // Therefore, the graph will throw an exception when it executes here.
+// graph.addNode("oracle", chain);
+
+// // const model = new ChatOpenAI({
+// //     temperature: 0,
+// //   }).bind({
+// //     tools: [convertToOpenAITool(new Calculator())],
+// //     tool_choice: "auto",
+// //   });
+
+// //   const graph = new MessageGraph();
+
+// // graph.addNode("oracle", async (state: BaseMessage[]) => {
+// //   return model.invoke(state);
+// // });
+
+// // graph.addNode("calculator", async (state: BaseMessage[]) => {
+// //   const tool = new Calculator();
+// //   const toolCalls = state[state.length - 1].additional_kwargs.tool_calls ?? [];
+// //   const calculatorCall = toolCalls.find(
+// //     (toolCall) => toolCall.function.name === "calculator"
+// //   );
+// //   if (calculatorCall === undefined) {
+// //     throw new Error("No calculator input found.");
+// //   }
+// //   const result = await tool.invoke(
+// //     JSON.parse(calculatorCall.function.arguments)
+// //   );
+// //   return new ToolMessage({
+// //     tool_call_id: calculatorCall.id,
+// //     content: result,
+// //   });
+// // });
+
+// // graph.addEdge("calculator", END);
+
+// // graph.setEntryPoint("oracle");
