@@ -69,7 +69,7 @@ function App() {
   };
 
   return (
-    <div className="max-w-3xl flex flex-col gap-4 mx-auto">
+    <div className="max-w-2xl flex flex-col gap-4 mx-auto">
       <div className="flex justify-center gap-4">
         {Object.keys(routes).map((v, i) => {
           return (
