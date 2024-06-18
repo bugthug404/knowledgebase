@@ -123,6 +123,13 @@ export default function Document({
             Upload
           </Button>
         </div>
+        Document already uploaded -{" "}
+        <a
+          className="text-blue-600 hover:underline"
+          href="https://www.iipa.org.in/upload/world_geo.pdf"
+        >
+          world_geo
+        </a>
       </div>
     </div>
   );
