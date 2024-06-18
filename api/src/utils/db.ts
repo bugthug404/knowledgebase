@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import mysql from "mysql2";
 import { OllamaEmbeddings } from "@langchain/community/embeddings/ollama";
 import {
   ChatGoogleGenerativeAI,
@@ -32,19 +31,11 @@ export const addToStore = async (collection: string, fullText: string) => {
 
   const docs = await textSplitter.createDocuments([fullText]);
 
-  // if (!useLocal && !!qdrantApiKey && !!qdrantApiKey) {
-  console.warn("Using addToStore ---> ", qdrantUrl, qdrantApiKey);
   await QdrantVectorStore.fromDocuments(docs, getEmbeder(), {
     collectionName: collection,
     url: qdrantUrl,
     apiKey: qdrantApiKey,
   });
-  // } else {
-  //   await QdrantVectorStore.fromDocuments(docs, getEmbeder(), {
-  //     collectionName: collection,
-  //     url: "http://localhost:6333",
-  //   });
-  // }
 };
 
 export const getStore = async (collection?: string) => {
@@ -55,27 +46,14 @@ export const getStore = async (collection?: string) => {
     apiKey: qdrantApiKey,
     collectionName: collection,
   });
-  // } else {
-  //   return await QdrantVectorStore.fromExistingCollection(getEmbeder(), {
-  //     url: "http://localhost:6333",
-  //     collectionName: collection,
-  //   });
-  // }
 };
 
 export const getStoreClient = () => {
   const { qdrantApiKey, qdrantUrl, useLocal } = appConfig;
-  // console.log("useLocal", typeof useLocal, !useLocal);
-  // if (!useLocal && !!qdrantApiKey && !!qdrantApiKey) {
   return new QdrantClient({
-    url: qdrantUrl,
+    url: qdrantUrl, // "http://localhost:6333",
     apiKey: qdrantApiKey,
   });
-  // } else {
-  //   return new QdrantClient({
-  //     url: "http://localhost:6333",
-  //   });
-  // }
 };
 
 export function getEmbeder() {
@@ -92,8 +70,11 @@ export function getEmbeder() {
   }
 }
 
-export function getLLM() {
-  if (!appConfig.useLocal && !!appConfig.gApiKey) {
+export function getLLM(useGemini?: boolean) {
+  if (
+    (!appConfig.useLocal && !!appConfig.gApiKey) ||
+    (useGemini && !!appConfig.gApiKey)
+  ) {
     return new ChatGoogleGenerativeAI({
       modelName: "gemini-1.5-flash",
       maxOutputTokens: 2048,

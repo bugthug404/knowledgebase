@@ -35,7 +35,6 @@ export async function urlPageText(url: string) {
     removeScripts(body);
 
     const textContent = body.textContent.trim();
-    console.log("textContent  ===", textContent);
     const removeEmptyLines = (textContent: string) => {
       const lines = textContent.split("\n");
       const nonEmptyLines = lines.filter((line) => line.trim());
@@ -47,9 +46,10 @@ export async function urlPageText(url: string) {
     cleanedTextContent = cleanedTextContent
       .replaceAll("?", "? ")
       .replaceAll(".", ". ")
-      .replaceAll("  ", " ");
+      .replaceAll(/\s+/g, " ");
 
-    console.log("cleanedTextContent  ===", cleanedTextContent);
+    console.log("cleanedTextContent.length  ===", cleanedTextContent.length);
+    console.log("url  ===", url);
 
     return cleanedTextContent;
   } catch (e) {

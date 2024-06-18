@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { extractWebsiteUrl } from "./utils/extract-website-urls";
 import { PlaywrightCrawler } from "crawlee";
 import { checkExistingCollection } from "../../utils/get-collections";
-import { askChain } from "../../utils/ask-chain";
+import { askChain, askChainCustom } from "../../utils/ask-chain";
 
 export async function getWebsiteUrls(req: Request, res: Response) {
   try {
@@ -93,7 +93,7 @@ export async function addWebsite(req: Request, res: Response) {
 
 export async function askWebsite(req: Request, res: Response) {
   try {
-    const GAPIKEY = process.env.GOOGLE_AI_API_KEY;
+    console.log("ask website", req.body);
     const { query, collection, model = "gemma:2b" } = req.query;
     const collectionName = req.body?.domain;
     console.log("ask website", query, model, collectionName);
@@ -106,6 +106,32 @@ export async function askWebsite(req: Request, res: Response) {
     }
 
     const ans = await askChain({
+      collection: collection as string,
+      query: query as string,
+    });
+
+    res.status(200).json({ data: ans });
+  } catch (error: any) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ error: error.message ?? "Internal server error" });
+  }
+}
+
+export async function askWebsiteCustom(req: Request, res: Response) {
+  try {
+    const { query, collection } = req.query;
+    const domain = req.body?.domain;
+
+    if (!query || !domain) {
+      res
+        .json({ error: "Missing required parameters for this request." })
+        .status(400);
+      return;
+    }
+
+    const ans = await askChainCustom({
       collection: collection as string,
       query: query as string,
     });

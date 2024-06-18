@@ -4,8 +4,9 @@ import { apiRequest } from "../utils";
 import toast from "react-hot-toast";
 import FileSelect from "./component/file-select";
 import Button from "./component/button";
+import CVSearchList from "./cv-search-list";
 
-export default function Document({
+export default function CVRank({
   colList,
   setError,
   getColList,
@@ -17,29 +18,34 @@ export default function Document({
   const [file, setFile] = useState<FileList | null>(null);
   const [collection, setCollection] = useState<string>("");
   const [fType, setType] = useState(".pdf");
+  const [askCol, setAskCol] = useState<string>("");
 
   async function handleUploadPdf() {
     setError(undefined);
     if (!collection) return toast.error("Please enter a collection name");
 
+    console.log("file --- ", file);
+
     if (file?.[0]) {
       const reader = new FileReader();
       reader.readAsDataURL(file?.[0]);
 
+      console.log("reader --- ", reader);
+
       reader.onload = (event) => {
         const data = event.target?.result as BinaryData;
-        apiRequest({
-          path: "/doc/add",
-          method: "POST",
-          data: { data, collectionName: collection, fileType: fType },
-          success: "Your PDF ready to serve 🎉🎊🥳",
-          error: "Something went wrong!",
-          onSuccess: () => getColList,
-          onError: (err) => {
-            console.log(err);
-            setError(err);
-          },
-        });
+        // apiRequest({
+        //   path: "/cvr/add",
+        //   method: "POST",
+        //   data: { data, collectionName: collection, fileType: fType },
+        //   success: "Your PDF ready to serve 🎉🎊🥳",
+        //   error: "Something went wrong!",
+        //   onSuccess: () => getColList,
+        //   onError: (err) => {
+        //     console.log(err);
+        //     setError(err);
+        //   },
+        // });
         // handleUploadPdf(fileData as BinaryData);
       };
     } else {
@@ -55,6 +61,7 @@ export default function Document({
           <FileSelect
             setFile={setFile}
             accept={fType}
+            multiple
             label={
               <div className="flex flex-col gap-2">
                 <div className="flex flex-wrap gap-2">
@@ -124,6 +131,12 @@ export default function Document({
           </Button>
         </div>
       </div>
+      <CVSearchList
+        colList={colList}
+        setError={setError}
+        askCol={askCol}
+        setAskCol={setAskCol}
+      />
     </div>
   );
 }

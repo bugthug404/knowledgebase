@@ -53,7 +53,9 @@ export default function Website({
               >
                 <option value="">create new</option>
                 {colList?.map((v) => (
-                  <option value={v.name}>{v.name}</option>
+                  <option value={v.name} key={v.name}>
+                    {v.name}
+                  </option>
                 ))}
               </select>
             </div>

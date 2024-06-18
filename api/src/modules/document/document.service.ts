@@ -5,7 +5,8 @@ import fs from "fs";
 import { PDFExtract } from "pdf.js-extract";
 // const { Document } = require("docxtemplater");
 import { addToStore } from "../../utils/db";
-import { askChain } from "../../utils/ask-chain";
+import { askChain, askChainCustom } from "../../utils/ask-chain";
+import officeParser from "officeparser";
 
 export async function addDocument(req: Request, res: Response) {
   try {
@@ -26,18 +27,12 @@ export async function addDocument(req: Request, res: Response) {
     const base64Data = dataUri.split(",")[1];
     const pdfData = Buffer.from(base64Data, "base64");
 
-    const tempFilePath = "temp";
+    const tempFilePath = "temp" + fileType;
 
     await fs.promises.writeFile(tempFilePath, pdfData);
     let fullText = "";
 
-    if (fileType === ".pdf") {
-      const pdfExtract = new PDFExtract();
-      const textData = await pdfExtract.extract(tempFilePath);
-      fullText = textData.pages
-        .map((v) => v.content.map((e) => e.str).join(" "))
-        .join(" ");
-    } else if (fileType === ".txt") {
+    if (fileType === ".txt") {
       fs.readFile(tempFilePath, "utf8", (err, data) => {
         if (err) {
           console.error("Error reading file:", err);
@@ -47,20 +42,19 @@ export async function addDocument(req: Request, res: Response) {
         fullText = data.split("\n").join(" ");
         console.log("fulltext sample", fullText.substring(0, 500));
       });
-    }
-    // else if (fileType === ".doc") {
-    //   // Use docxtemplater or another library to extract text from DOC file
-
-    //   const doc = new Docxtemplater() ;
-    //   doc.load(tempFilePath); // Load the DOC file
-    //   const text = doc.get("text"); // Extract text content
-
-    //   if (text) {
-    //     fullText = text;
-    //   }
-    // }
-    else {
-      return res.status(400).send({ error: "fileType is required" });
+    } else if (
+      fileType === ".docx" ||
+      fileType === ".pptx" ||
+      fileType === ".xlsx" ||
+      fileType === ".odt" ||
+      fileType === ".odp" ||
+      fileType === ".ods" ||
+      fileType === ".pdf"
+    ) {
+      fullText = await officeParser.parseOfficeAsync(tempFilePath);
+      return console.log("fulltext sample", fullText.substring(0, 100));
+    } else {
+      return res.status(400).send({ error: "Invalid file or filetype" });
     }
 
     await addToStore(collectionName, fullText);
@@ -84,13 +78,12 @@ export async function askDocument(req: Request, res: Response) {
       return;
     }
 
-    const ans = await askChain({
+    const ans = await askChainCustom({
       collection: collection as string,
       query: query as string,
     });
-    console.info("query -- ", query);
-    console.info("ans -- ", ans);
-    res.send({ data: ans });
+
+    res.send({ data: ans.ans, docsUsed: ans.docsUsed }).status(200);
   } catch (error: any) {
     console.log(error);
     return res

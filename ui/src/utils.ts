@@ -45,10 +45,12 @@ export async function apiRequest({
         onSuccess?.(res);
       })
       .catch((err) => {
+        console.log(err);
         onError?.(
           err?.response?.data?.error ??
-            error ??
+            err?.response?.data ??
             err?.message ??
+            error ??
             "Something went wrong. try again later!"
         );
       })

@@ -12,7 +12,6 @@ export async function extractWebsiteUrl(
     async requestHandler({ request, page, enqueueLinks }) {
       if (request.loadedUrl.endsWith(".webp")) return;
       const pageText = await urlPageText(request.loadedUrl);
-      // console.log(pageText);
       const title = await page.title();
       await saveUrlData(url, colName, title, pageText);
       await enqueueLinks();

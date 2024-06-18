@@ -1,4 +1,3 @@
-import { QdrantClient } from "@qdrant/js-client-rest";
 import { Request, Response } from "express";
 import { getCollectionList } from "../../utils/get-collections";
 import { appConfig } from "../../utils/app-config";

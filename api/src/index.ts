@@ -6,11 +6,12 @@ import websiteRouter from "./modules/website/website.controller";
 import collectionRouter from "./modules/collection/collection.controller";
 import https from "https";
 import fs from "fs";
+import supportBotRouter from "./modules/support-bot/support-bot.controller";
+import fcRouter from "./modules/fc/fc.controller";
+import cvrRouter from "./modules/cv-ranking/cvr.controller";
 
 dotenv.config();
 const app = express();
-
-const port = process.env.PORT || 3008;
 
 app.use(
   Cors({
@@ -32,6 +33,11 @@ app.get("/", (req, res) => {
 app.use("/doc", documentRouter);
 app.use("/col", collectionRouter);
 app.use("/web", websiteRouter);
+app.use("/support-bot", supportBotRouter);
+app.use("/fc", fcRouter);
+app.use("/cvr", cvrRouter);
+
+const port = process.env.PORT || 3008;
 
 if (process.env.USE_LOCAL_SSL) {
   const httpsOptions = {
