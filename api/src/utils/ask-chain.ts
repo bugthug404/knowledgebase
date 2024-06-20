@@ -3,6 +3,7 @@ import { getEmbeder, getLLM, getStore, getStoreClient } from "./db";
 import { ChatPromptTemplate } from "langchain/dist/prompts/chat";
 import { pull } from "langchain/hub";
 import {
+  Content,
   FunctionDeclarationsTool,
   GoogleGenerativeAI,
 } from "@google/generative-ai";
@@ -34,6 +35,7 @@ export async function askChain({
   };
 }
 
+const chatHistory: Content[] = [];
 export async function askChainCustom({
   collection,
   query,
@@ -86,7 +88,9 @@ export async function askChainCustom({
   Generate response: ignore documents if they don't match the query.
   `;
 
-  const chat = generativeModel.startChat({});
+  const chat = generativeModel.startChat({
+    history: chatHistory,
+  });
 
   const result = await chat.sendMessage(pomt as string);
 
