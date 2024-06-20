@@ -70,15 +70,15 @@ export async function addWebsite(req: Request, res: Response) {
 
     // const domain = new URL(webUrl).hostname;
 
-    try {
-      await checkExistingCollection(collectionName);
-      // console.log(searchResult);
-      return res.status(400).json({
-        error: "this domain already added. try recreate to add again.",
-      });
-    } catch (err) {
-      // nothing to do here
-    }
+    // try {
+    //   await checkExistingCollection(collectionName);
+    //   // console.log(searchResult);
+    //   return res.status(400).json({
+    //     error: "this domain already added. try recreate to add again.",
+    //   });
+    // } catch (err) {
+    //   // nothing to do here
+    // }
 
     await extractWebsiteUrl(webUrl, domain, collectionName);
 

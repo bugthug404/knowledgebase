@@ -5,9 +5,14 @@ import {
   SafetySetting,
   HarmCategory,
   HarmBlockThreshold,
+  Content,
 } from "@google/generative-ai";
 import { Request, Response } from "express";
 import {
+  bookFlight,
+  bookFlightFD,
+  checkAvailableFlightFD,
+  checkAvailableFlights,
   getExchangeRateFunctionDeclaration,
   makeApiRequest,
   myInformation,
@@ -28,7 +33,7 @@ export async function testGenAI(req: Request, res: Response) {
         return makeApiRequest(currencyFrom, currencyTo);
       },
       myInformation: () => {
-        return myInformation();
+        return myInformation("sdkjfh");
       },
     };
 
@@ -164,5 +169,125 @@ export async function askQdrant(req: Request, res: Response) {
   } catch (error: any) {
     console.log(error);
     res.status(500).json({ error: error.message });
+  }
+}
+
+const chatHistory: Content[] = [];
+
+export async function asking(req: Request, res: Response) {
+  try {
+    console.log("fc asking ---- ");
+    const { query: prompt } = req.query;
+    // chatHistory.push({ role: "user", parts: [{ text:  "1"+prompt as string }] });
+
+    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
+
+    // Executable function code. Put it in a map keyed by the function name
+    // so that you can call it once you get the name string from the model.
+    const functions = {
+      getExchangeRate: ({ currencyFrom, currencyTo }) => {
+        return makeApiRequest(currencyFrom, currencyTo);
+      },
+      myInformation: ({ userToken }) => {
+        return myInformation(userToken);
+      },
+      checkAvailableFlights: ({ flightFrom, flightTo }) => {
+        return checkAvailableFlights(flightFrom, flightTo);
+      },
+      bookFlight: ({ flightNo }) => {
+        return bookFlight(flightNo);
+      },
+    };
+    const token = "adslkjfs93485793";
+
+    const generativeModel = genAI.getGenerativeModel({
+      // Use a model that supports function calling, like a Gemini 1.5 model
+      model: "gemini-1.5-flash",
+
+      // Specify the function declaration.
+      tools: [
+        {
+          functionDeclarations: [
+            getExchangeRateFunctionDeclaration,
+            myInformationFD,
+            checkAvailableFlightFD,
+            bookFlightFD,
+          ],
+        },
+      ] as FunctionDeclarationsTool[],
+      systemInstruction: `
+       You are an intelligent & helping virtual assistant for an Aviation Company.You help user with basic requirements like Flight booking, Find Flights, Recent Flight Details etc. Keep response to the point. keep response short & to the point.
+       
+       USERTOKEN: ${token}
+
+       Generate response: do not use functions untill necessary. .
+       `,
+    });
+
+    const allowPersonalInfo: SafetySetting = {
+      category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+      threshold: HarmBlockThreshold.BLOCK_NONE,
+    };
+
+    const pomt = `
+    Query: ${prompt}
+    `;
+
+    const chat = generativeModel.startChat({
+      safetySettings: [allowPersonalInfo],
+      history: chatHistory,
+    });
+
+    console.log("pomt  -----  ", pomt);
+
+    if (!prompt) return res.status(400).json({ error: "query is required!" });
+
+    // Send the message to the model.
+    const result = await chat.sendMessage(pomt as string);
+
+    console.log("resultss1  ----- ", result, result?.response?.text());
+
+    if (result?.response?.text()) {
+      console.log("direct answer  ----- ", result.response.text());
+
+      return res
+        .status(200)
+        .json({ data: result.response.text(), chatHistory });
+    }
+
+    // For simplicity, this uses the first function call found.
+    const call = result.response.functionCalls()[0];
+
+    console.log("call result -- ", call);
+
+    let result2: GenerateContentResult;
+    if (call) {
+      const apiResponse = await functions[call.name](call.args);
+
+      console.log("api response  --- ", apiResponse);
+
+      // Send the API response back to the model so it can generate
+      // a text response that can be displayed to the user.
+      result2 = await chat.sendMessage([
+        {
+          functionResponse: {
+            name: call.name,
+            response: apiResponse,
+          },
+        },
+      ]);
+
+      // Log the text response.
+      console.log(result2.response.text());
+    }
+    res.status(200).json({
+      prompt: prompt,
+      data: result2.response.text(),
+      chatHistory,
+    });
+  } catch (error) {
+    console.log("error  ", error.response?.text ?? error);
+    // console.log("error  ", error.response?.candidates[0].safetyRatings);
+    res.status(500).json({ error: error.message, chatHistory });
   }
 }

@@ -86,23 +86,7 @@ export async function askChainCustom({
   Generate response: ignore documents if they don't match the query.
   `;
 
-  const chat = generativeModel.startChat({
-    // safetySettings: [allowPersonalInfo],
-    //   history: [
-    //     {
-    //       role: "user",
-    //       parts: [
-    //         { text: "what does danial like to eat after having a good meal" },
-    //       ],
-    //     },
-    //     {
-    //       role: "context",
-    //       parts: [
-    //         { text: "danial like to eat deserts after having a good meal" },
-    //       ],
-    //     },
-    //   ],
-  });
+  const chat = generativeModel.startChat({});
 
   const result = await chat.sendMessage(pomt as string);
 
