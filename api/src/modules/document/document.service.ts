@@ -5,7 +5,7 @@ import fs from "fs";
 import { PDFExtract } from "pdf.js-extract";
 // const { Document } = require("docxtemplater");
 import { addToStore } from "../../utils/db";
-import { askChain, askChainCustom } from "../../utils/ask-chain";
+import { askChain, askChainCustom, askFcChain } from "../../utils/ask-chain";
 import officeParser from "officeparser";
 
 export async function addDocument(req: Request, res: Response) {
@@ -78,12 +78,13 @@ export async function askDocument(req: Request, res: Response) {
       return;
     }
 
-    const ans = await askChainCustom({
+    const ans = await askFcChain({
       collection: collection as string,
       query: query as string,
+      sessionid: req.session.id,
     });
 
-    res.send({ data: ans.ans, docsUsed: ans.docsUsed }).status(200);
+    res.send({ data: ans.data, chatHistory: ans.chatHistory }).status(200);
   } catch (error: any) {
     console.log(error);
     return res

@@ -32,6 +32,7 @@ export async function apiRequest({
       headers: {
         Accept: "application/json",
       },
+      withCredentials: true,
     };
     const request = axios.request(config);
 

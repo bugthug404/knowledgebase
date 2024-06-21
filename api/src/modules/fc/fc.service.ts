@@ -229,9 +229,7 @@ export async function asking(req: Request, res: Response) {
       threshold: HarmBlockThreshold.BLOCK_NONE,
     };
 
-    const pomt = `
-    Query: ${prompt}
-    `;
+    const pomt = `Query: ${prompt}`;
 
     const chat = generativeModel.startChat({
       safetySettings: [allowPersonalInfo],

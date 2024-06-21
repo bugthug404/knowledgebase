@@ -1,5 +1,5 @@
 import express from "express";
-import Cors from "cors";
+import cors from "cors";
 import dotenv from "dotenv";
 import documentRouter from "./modules/document/document.controller";
 import websiteRouter from "./modules/website/website.controller";
@@ -9,20 +9,40 @@ import fs from "fs";
 import supportBotRouter from "./modules/support-bot/support-bot.controller";
 import fcRouter from "./modules/fc/fc.controller";
 import cvrRouter from "./modules/cv-ranking/cvr.controller";
+import session = require("express-session");
 
 dotenv.config();
 const app = express();
 
+const whitelist = ["http://localhost:5173"];
+const corsOptions = {
+  // origin: (origin, callback) => {
+  //   if (whitelist.indexOf(origin) !== -1 || origin === undefined) {
+  //     callback(null, true);
+  //   } else {
+  //     callback(new Error("UNAUTHORIZED!"));
+  //   }
+  // },
+  origin: (origin, callback) => {
+    callback(null, true); // Allow all origins
+  },
+  credentials: true,
+};
+
 app.use(
-  Cors({
-    origin: "*",
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  session({
+    secret: "abcd1234",
+    resave: false,
+    saveUninitialized: true,
   })
 );
+app.use(cors(corsOptions));
 // usable on docuemnt upload
 app.use(express.json({ limit: "20mb" }));
 
 app.get("/", (req, res) => {
+  // @ts-ignore
+  req.session.name = "this is session okkkkkk";
   const time = new Date().toLocaleTimeString();
   console.log("get request === ", time);
   res.status(200).send({
