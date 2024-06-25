@@ -62,7 +62,7 @@ export default function CVSearchList({
   }
 
   return (
-    <div className="p-4 bg-gray-100 rounded-3xl  w-full  gap-2">
+    <div className="p-4 bg-blue-50 rounded-3xl  w-full  gap-2">
       <div className="pb-2">
         <label htmlFor="selectllm">Choose Collection : </label>
         <select

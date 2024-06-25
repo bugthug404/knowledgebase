@@ -50,7 +50,7 @@ export default function Document({
 
   return (
     <div className=" flex flex-col gap-4 items-center ">
-      <div className="p-4 bg-gray-100 rounded-3xl  w-full  gap-2">
+      <div className="p-4 bg-blue-50 rounded-3xl  w-full  gap-2">
         <div className="flex items-end justify-between gap-4">
           <FileSelect
             setFile={setFile}

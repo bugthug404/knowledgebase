@@ -49,7 +49,7 @@ export async function urlPageText(url: string) {
       .replaceAll(".", ". ")
       .replaceAll(/\s+/g, " ");
 
-    console.log("cleanedTextContent.length  ===", cleanedTextContent.length);
+    console.log("cleanedTextContent.length  ===  ", cleanedTextContent.length);
     console.log("url  ===", url);
 
     return cleanedTextContent;

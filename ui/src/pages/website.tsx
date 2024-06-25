@@ -40,7 +40,7 @@ export default function Website({
 
   return (
     <div className=" flex flex-col gap-4 items-center">
-      <div className="p-4 bg-gray-100 rounded-3xl  w-full flex flex-col gap-2">
+      <div className="p-4 bg-blue-50 rounded-3xl  w-full flex flex-col gap-2">
         <div className="flex flex-wrap gap-2 text-sm">
           <div className="flex">
             <div>Select collections</div>

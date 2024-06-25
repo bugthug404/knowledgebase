@@ -62,7 +62,7 @@ export default function Chat({
   }
 
   return (
-    <div className="p-4 bg-gray-100 rounded-3xl  w-full  gap-2">
+    <div className="p-4 bg-blue-50 rounded-3xl  w-full  gap-2">
       <div className="pb-2">
         <label htmlFor="selectllm">Choose Collection : </label>
         <select
@@ -87,13 +87,15 @@ export default function Chat({
         />
         <Button onClick={() => handleAsk()}>Ask</Button>
       </div>
-      {qnaList.length ? (
-        <Qna list={qnaList} />
-      ) : (
-        <div className="p-4 bg-white mt-4 rounded-lg h-52 text-center pt-24">
-          Ask your first question
-        </div>
-      )}
+      <div className=" bg-white px-2">
+        {qnaList.length ? (
+          <Qna list={qnaList} />
+        ) : (
+          <div className="p-4 bg-white mt-4 rounded-lg h-52 text-center pt-24">
+            Ask your first question
+          </div>
+        )}
+      </div>
     </div>
   );
 }

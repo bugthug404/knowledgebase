@@ -4,6 +4,7 @@ import { ChatPromptTemplate } from "langchain/dist/prompts/chat";
 import { pull } from "langchain/hub";
 import {
   Content,
+  FunctionDeclaration,
   FunctionDeclarationsTool,
   GenerateContentResult,
   GoogleGenerativeAI,
@@ -125,12 +126,27 @@ export async function askFcChain({
   collection,
   query,
   sessionid,
+  systemPrompt,
+  functions,
+  functionDeclarations,
 }: {
   collection: string;
   query: string;
   sessionid: string;
+  systemPrompt: string;
+  functions: { [key: string]: Function };
+  functionDeclarations: FunctionDeclaration[];
 }) {
-  console.log("askChainCustom");
+  functions.addToSessionMemory = ({ keyName, value }) => {
+    return addToSessionMemory(keyName, value, (k, v) => {
+      memoryStorage[sessionid] = {
+        ...memoryStorage[sessionid],
+        [k]: v,
+        updatedAt: now.toISOString(),
+      };
+    });
+  };
+
   const now = new Date();
   session[sessionid] = session[sessionid] || [];
 
@@ -151,32 +167,17 @@ export async function askFcChain({
 
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
 
-  const functions = {
-    searchDatabase: ({ collectionid, userQuery, keywords }) => {
-      return searchDatabase(collectionid, userQuery, keywords);
-    },
-    addToSessionMemory: ({ keyName, value }) => {
-      return addToSessionMemory(keyName, value, (k, v) => {
-        memoryStorage[sessionid] = {
-          ...memoryStorage[sessionid],
-          [k]: v,
-          updatedAt: now.toISOString(),
-        };
-      });
-    },
-  };
-
   const sessiontData = JSON.stringify(memoryStorage?.[sessionid]);
-  console.log("session data to use -- ", sessionid, sessiontData);
-  console.log("full memoryStorage -- ", memoryStorage);
 
   const generativeModel = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
     tools: [
-      { functionDeclarations: [searchDatabaseFD, addToSessionMemoryFD] },
+      { functionDeclarations: [...functionDeclarations, addToSessionMemoryFD] },
     ] as FunctionDeclarationsTool[],
     safetySettings: [allowPersonalInfo],
-    systemInstruction: `
+    systemInstruction:
+      systemPrompt ??
+      `
     You are an sales assistant for GalileoFx. you help user with general information like about the company, product information, faq's etc.
 
     You ask questions when you don't know the answer. You speak very politly and you are very professional.

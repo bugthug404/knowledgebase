@@ -1,6 +1,7 @@
 import { PlaywrightCrawler } from "crawlee";
 import { saveUrlData } from "./save-url-data";
 import { urlPageText } from "./url-page-text";
+import { addToStoreCustom, addToStoreUnique } from "../../../utils/db";
 
 export async function extractWebsiteUrl(
   url: string,
@@ -12,8 +13,8 @@ export async function extractWebsiteUrl(
     async requestHandler({ request, page, enqueueLinks }) {
       if (request.loadedUrl.endsWith(".webp")) return;
       const pageText = await urlPageText(request.loadedUrl);
-      const title = await page.title();
-      await saveUrlData(url, colName, title, pageText);
+      await addToStoreUnique(colName, pageText);
+
       await enqueueLinks();
       await page.close();
     },
@@ -26,5 +27,4 @@ export async function extractWebsiteUrl(
   //   "https://store.galileofx.com/pages/pricing-unlocked",
   //   "https://store.galileofx.com/pages/faqs",
   // ]);
-  return;
 }
