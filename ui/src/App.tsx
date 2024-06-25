@@ -8,8 +8,6 @@ import { useNavigate, Navigate } from "react-router-dom";
 import { apiRequest } from "./utils";
 import ErrorBox from "./pages/error-box";
 import Chat from "./pages/chat";
-import CVRank from "./pages/cv-upload";
-import CVSearchList from "./pages/cv-search-list";
 import FcChat from "./pages/fc-chat";
 
 function App() {
@@ -78,8 +76,12 @@ function App() {
     // ),
   };
 
+  const BOT_ID = "botpress-welcome-panel";
+
   return (
     <div className="max-w-2xl flex flex-col gap-4 mx-auto">
+      {/* <EmbeddedWebchat botID={BOT_ID} /> */}
+
       <div className="flex justify-center gap-4">
         {Object.keys(routes).map((v, i) => {
           if (!v.replace("/", "")) return null;

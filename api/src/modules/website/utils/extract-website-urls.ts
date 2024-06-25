@@ -14,8 +14,8 @@ export async function extractWebsiteUrl(
       const pageText = await urlPageText(request.loadedUrl);
       const title = await page.title();
       await saveUrlData(url, colName, title, pageText);
-      // await enqueueLinks();
-      // await page.close();
+      await enqueueLinks();
+      await page.close();
     },
     maxConcurrency: 10,
   });

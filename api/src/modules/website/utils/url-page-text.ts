@@ -21,9 +21,10 @@ export async function urlPageText(url: string) {
         if (
           child.nodeName.toLowerCase() === "script" ||
           child.nodeName.toLowerCase() === "iframe" ||
-          child.nodeName.toLowerCase() === "footers" ||
+          child.nodeName.toLowerCase() === "footer" ||
           child.nodeName.toLowerCase() === "header" ||
-          child.nodeName.toLowerCase() === "style"
+          child.nodeName.toLowerCase() === "style" ||
+          child.textContent.trim().split(/\s+/).length <= 5
         ) {
           child.parentNode.removeChild(child);
         } else {

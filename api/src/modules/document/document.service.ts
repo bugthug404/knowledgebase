@@ -4,7 +4,7 @@ import { Buffer } from "buffer"; // Import Buffer class
 import fs from "fs";
 import { PDFExtract } from "pdf.js-extract";
 // const { Document } = require("docxtemplater");
-import { addToStore } from "../../utils/db";
+import { addToStore, addToStoreCustom } from "../../utils/db";
 import { askChain, askChainCustom, askFcChain } from "../../utils/ask-chain";
 import officeParser from "officeparser";
 
@@ -33,15 +33,12 @@ export async function addDocument(req: Request, res: Response) {
     let fullText = "";
 
     if (fileType === ".txt") {
-      fs.readFile(tempFilePath, "utf8", (err, data) => {
-        if (err) {
-          console.error("Error reading file:", err);
-          return;
-        }
+      const d = await fs.promises.readFile(tempFilePath, "base64");
+      const decodedText = Buffer.from(d, "base64").toString("utf8");
 
-        fullText = data.split("\n").join(" ");
-        console.log("fulltext sample", fullText.substring(0, 500));
-      });
+      fullText = decodedText.replaceAll(/\s+/g, " ");
+
+      console.log(" full text -- ", fullText.substring(0, 200));
     } else if (
       fileType === ".docx" ||
       fileType === ".pptx" ||
@@ -52,17 +49,19 @@ export async function addDocument(req: Request, res: Response) {
       fileType === ".pdf"
     ) {
       fullText = await officeParser.parseOfficeAsync(tempFilePath);
-      return console.log("fulltext sample", fullText.substring(0, 100));
     } else {
       return res.status(400).send({ error: "Invalid file or filetype" });
     }
 
-    await addToStore(collectionName, fullText);
+    if (fullText.length === 0)
+      return res.status(400).send({ error: "Empty file" });
+
+    await addToStoreCustom(collectionName, fullText);
 
     res.json({ status: "data uploaded successfully" }).status(200);
   } catch (error: any) {
     console.error(error);
-    res.json({ error: error.message ?? "Internal server error" }).status(500);
+    res.status(500).json({ error: error.message ?? "Internal server error" });
   }
 }
 

@@ -86,8 +86,8 @@ export async function addWebsite(req: Request, res: Response) {
   } catch (error: any) {
     console.error(error);
     return res
-      .json({ error: error.message ?? "Internal server error" })
-      .status(500);
+      .status(500)
+      .json({ error: error.message ?? "Internal server error" });
   }
 }
 

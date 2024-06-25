@@ -9,6 +9,7 @@ import { Ollama } from "@langchain/community/llms/ollama";
 import { QdrantVectorStore } from "@langchain/community/vectorstores/qdrant";
 import { QdrantClient } from "@qdrant/js-client-rest";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { generateUUID } from "../modules/cv-ranking/utils";
 
 export const connectToMongoDB = async () => {
   try {
@@ -20,22 +21,82 @@ export const connectToMongoDB = async () => {
 };
 
 export const addToStore = async (collection: string, fullText: string) => {
-  const { qdrantApiKey, qdrantUrl, useLocal } = appConfig;
-  if (!qdrantUrl) {
-    throw new Error("vector store url is required! please check your config");
+  try {
+    const { qdrantApiKey, qdrantUrl, useLocal } = appConfig;
+    if (!qdrantUrl) {
+      throw new Error("vector store url is required! please check your config");
+    }
+
+    const textSplitter = new RecursiveCharacterTextSplitter({
+      chunkSize: 1000,
+    });
+
+    const docs = await textSplitter.createDocuments([fullText]);
+
+    const op = await QdrantVectorStore.fromDocuments(docs, getEmbeder(), {
+      collectionName: collection,
+      url: qdrantUrl,
+      apiKey: qdrantApiKey,
+    });
+    console.log("operation result -- ", op);
+  } catch (error) {
+    throw new Error(error);
   }
+};
 
-  const textSplitter = new RecursiveCharacterTextSplitter({
-    chunkSize: 1000,
-  });
+export const addToStoreCustom = async (
+  collection: string,
+  fullText: string
+) => {
+  try {
+    const client = getStoreClient();
 
-  const docs = await textSplitter.createDocuments([fullText]);
+    try {
+      await client.getCollection(collection);
+    } catch (error) {
+      if ((error.data.status.error as string).startsWith("Not found:"))
+        await client.createCollection(collection, {
+          vectors: {
+            size: 768,
+            distance: "Cosine",
+          },
+        });
+    }
 
-  await QdrantVectorStore.fromDocuments(docs, getEmbeder(), {
-    collectionName: collection,
-    url: qdrantUrl,
-    apiKey: qdrantApiKey,
-  });
+    const textSplitter = new RecursiveCharacterTextSplitter({
+      chunkSize: 1000,
+    });
+
+    const texts = await textSplitter.splitText(fullText);
+
+    const embedder = getEmbeder();
+    const docEmbeddings = await embedder.embedDocuments(texts);
+
+    if (texts.length !== docEmbeddings.length) {
+      throw new Error("docs length is not equal to documents length");
+    }
+
+    const points = docEmbeddings.map((d, i) => {
+      return {
+        id: i,
+        vector: d,
+        payload: {
+          content: texts[i],
+        },
+      };
+    });
+
+    console.log("points -- ", points[0].id, points[1].id);
+
+    const op = await client.upsert(collection, {
+      wait: true,
+
+      points: points,
+    });
+  } catch (error) {
+    console.error("error adding to store", error);
+    throw new Error(error);
+  }
 };
 
 export const getStore = async (collection?: string) => {

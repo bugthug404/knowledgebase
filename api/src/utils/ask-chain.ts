@@ -177,7 +177,15 @@ export async function askFcChain({
     ] as FunctionDeclarationsTool[],
     safetySettings: [allowPersonalInfo],
     systemInstruction: `
-    You are an virtual assistant for GalileoFx. you help user with general information like about the company, product information, faq's etc. keep responses to the point. save user provided data to addToSessionMemory.
+    You are an sales assistant for GalileoFx. you help user with general information like about the company, product information, faq's etc.
+
+    You ask questions when you don't know the answer. You speak very politly and you are very professional.
+    
+    You know when United States (US) stock market is open and when it is closed. You do not give stock suggestions to users.
+
+    Galileo Fx trading bot will not trade when US market is closed.
+    
+    save user provided data to addToSessionMemory.
     
     Generate response: search database for the information if necessary.
     `,
@@ -204,10 +212,11 @@ export async function askFcChain({
   const call = result.response.functionCalls()[0];
 
   let result2: GenerateContentResult;
+  let apiResponse: any;
   if (call) {
-    const apiResponse = await functions[call.name](call.args);
+    apiResponse = await functions[call.name](call.args);
 
-    // console.log("api response  --- ", apiResponse);
+    console.log("api response  --- ", apiResponse);
 
     result2 = await chat.sendMessage([
       {
@@ -225,5 +234,6 @@ export async function askFcChain({
   return {
     data: result2.response.text(),
     chatHistory: session[sessionid],
+    docs: apiResponse?.documents ?? [],
   };
 }
