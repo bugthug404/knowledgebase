@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Embedded Webchat (Password Protected)</title>
+  </head>
+  <body>
+    <div id="form-page">
+      <h1>Enter Password</h1>
+      <form id="passwordForm">
+        <input type="password" name="password" placeholder="Enter Password" />
+        <button type="submit">Login</button>
+      </form>
+    </div>
+
+    <div id="authed" style="display: none">
+      <h1>Authenticated</h1>
+      Chat is enabled
+    </div>
+
+    <div id="webchat-container" style="display: none">
+      <script src="https://v12-appeetkusa-em.a.run.app/assets/modules/channel-web/inject.js"></script>
+      <script>
+        {
+          window.hideWidget = false;
+        }
+      </script>
+    </div>
+
+    <script>
+      const passwordForm = document.getElementById("passwordForm");
+      const webchatContainer = document.getElementById("webchat-container");
+      const formPage = document.getElementById("form-page");
+      const authed = document.getElementById("authed");
+
+      passwordForm.addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent default form submission
+
+        const password = document.querySelector('input[name="password"]').value;
+
+        // Replace "your_correct_password" with your actual password
+        if (password === "sohms") {
+          console.log("password match");
+          window.hideWidget = false;
+          formPage.style.display = "none";
+          webchatContainer.style.display = "block"; // Show web chat
+          authed.style.display = "block";
+
+          // Initialize web chat with hideWidget set to true
+          window.botpressWebChat.init({
+            host: "https://v12-appeetkusa-em.a.run.app",
+            botId: "bot-welcome",
+            showPoweredBy: false,
+            enableTranscriptDownload: false,
+            showConversationsButton: false,
+            hideWidget: !!window?.hideWidget, // This hides the widget initially
+          });
+
+          // You can optionally clear the password field here
+          document.querySelector('input[name="password"]').value = "";
+        } else {
+          alert("Incorrect Password!");
+        }
+      });
+    </script>
+  </body>
+</html>
