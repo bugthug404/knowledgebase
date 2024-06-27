@@ -17,6 +17,7 @@ function App() {
   const [colList, setColList] = useState<{ name: string }[] | null>(null);
   const [error, setError] = useState<string | undefined>();
   const [askCol, setAskCol] = useState<string>("");
+  const [askPath, setAskPath] = useState<string>("");
 
   // if (path === "/") {
   //   return <Navigate to="/chat" />;

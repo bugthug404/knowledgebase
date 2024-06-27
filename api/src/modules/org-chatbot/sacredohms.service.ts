@@ -1,12 +1,14 @@
 import { Request, Response } from "express";
-
-// const { Document } = require("docxtemplater");
 import { askFcChain } from "../../utils/ask-chain";
 
 import { FunctionDeclaration } from "@google/generative-ai";
 import { searchDatabase, searchDatabaseFD } from "./gfx.functions";
+import {
+  searchSacredOhmsDatabase,
+  searchSacredOhmsDatabaseFD,
+} from "./sohm.functions";
 
-export async function askGfxBot(req: Request, res: Response) {
+export async function askSOBot(req: Request, res: Response) {
   console.log("ask document");
   try {
     const { query, collection } = req.query;
@@ -18,21 +20,17 @@ export async function askGfxBot(req: Request, res: Response) {
       return;
     }
 
-    const today = new Date();
-
     const systemPrompt = `
-    You are an polite & professional sales assistant for Galileo Fx. you help user with general information like about the company, pricing, faq's etc. You do not give stock suggestions to users.
-    
-    Galileo Fx Trading bot only trade when selected stock market is open. To check if your stock open or closed visit tradinghours [https://www.tradinghours.com/markets].
+    You are chatbot for Sacred Ohms. 
 
-    save user provided data to addToSessionMemory.
-    
+    Sacred Ohms is an exclusive, members-only, integrated booking platform that revolutionizes the wellness experience by seamlessly connecting vetted Retreat Leaders to energetically aligned properties, fostering a harmonious booking experience for all: Reducing friction for Retreat Leaders, Growing revenue for Ohm Owners, Discovering new locations, Searchable niche-focused amenities, Programming designed to elevate the retreat experience all, save user provided data to addToSessionMemory.
+
     Generate response: find answer from sacred ohms database.
     `;
 
     const functions = {
-      searchDatabase: ({ collectionid, userQuery, keywords }) => {
-        return searchDatabase(collectionid, userQuery, keywords);
+      searchSacredOhmsDatabase: ({ collectionid, userQuery, keywords }) => {
+        return searchSacredOhmsDatabase(collectionid, userQuery, keywords);
       },
     };
 
@@ -42,7 +40,9 @@ export async function askGfxBot(req: Request, res: Response) {
       sessionid: req.session.id,
       systemPrompt,
       functions,
-      functionDeclarations: [searchDatabaseFD] as FunctionDeclaration[],
+      functionDeclarations: [
+        searchSacredOhmsDatabaseFD,
+      ] as FunctionDeclaration[],
     });
 
     res

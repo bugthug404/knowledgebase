@@ -25,6 +25,10 @@ export default function Chat({
     const question = inputRef.current?.value;
     if (!question) return toast("Please enter your question!");
     if (!askCol) return toast("Please select a collection name");
+    // const path = askCol === "galileofx" ? "/org/gfx" : "/doc/ask";
+    let path = "/doc/ask";
+    if (askCol === "galileofx") path = "/org/gfx";
+    if (askCol === "sacredohms") path = "/org/sohms";
 
     // let m = model.replace("", "--");
     setQnaList([
@@ -37,7 +41,7 @@ export default function Chat({
     let q = inputRef.current.value;
 
     apiRequest({
-      path: `/doc/ask?query=${question}&collection=${askCol}`,
+      path: path + `/?query=${question}&collection=${askCol}`,
       success: "success",
       error: "Something went wrong!",
       onSuccess: (res) => {

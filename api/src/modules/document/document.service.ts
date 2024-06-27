@@ -6,8 +6,8 @@ import fs from "fs";
 import { addToStoreCustom, addToStoreUnique } from "../../utils/db";
 import { askFcChain } from "../../utils/ask-chain";
 import officeParser from "officeparser";
-import { searchDatabase, searchDatabaseFD } from "../../utils/functions";
 import { FunctionDeclaration } from "@google/generative-ai";
+import { searchDatabase, searchDatabaseFD } from "../org-chatbot/gfx.functions";
 
 export async function addDocument(req: Request, res: Response) {
   try {

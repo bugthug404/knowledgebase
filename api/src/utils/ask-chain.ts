@@ -13,8 +13,6 @@ import {
   addToSessionMemory,
   addToSessionMemoryFD,
   allowPersonalInfo,
-  searchDatabase,
-  searchDatabaseFD,
 } from "./functions";
 
 export async function askChain({
@@ -133,7 +131,7 @@ export async function askFcChain({
   collection: string;
   query: string;
   sessionid: string;
-  systemPrompt: string;
+  systemPrompt?: string;
   functions: { [key: string]: Function };
   functionDeclarations: FunctionDeclaration[];
 }) {
@@ -178,24 +176,18 @@ export async function askFcChain({
     systemInstruction:
       systemPrompt ??
       `
-    You are an sales assistant for GalileoFx. you help user with general information like about the company, product information, faq's etc.
-
-    You ask questions when you don't know the answer. You speak very politly and you are very professional.
-    
-    You know when United States (US) stock market is open and when it is closed. You do not give stock suggestions to users.
-
-    Galileo Fx trading bot will not trade when US market is closed.
-    
-    save user provided data to addToSessionMemory.
+    You are a intelligent chatbot to help user to find information from database.
     
     Generate response: search database for the information if necessary.
     `,
   });
 
+  const today = new Date();
   const pomt = `Query: ${query.replace(/\s+/g, " ")}
-  collectionid: ${collection}
   SessionStorageContext: ${sessiontData}
+  User's current date and time is ${today.toDateString()}
   sessionid: ${sessionid}
+  collectionid: ${collection}
   `;
 
   const chat = generativeModel.startChat({

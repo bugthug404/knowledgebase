@@ -54,8 +54,7 @@ export async function urlPageText(url: string) {
 
     return cleanedTextContent;
   } catch (e) {
-    console.log("error", e);
-
-    return "";
+    console.log("error - ", e.message);
+    throw e;
   }
 }

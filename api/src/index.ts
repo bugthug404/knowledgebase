@@ -10,6 +10,7 @@ import supportBotRouter from "./modules/support-bot/support-bot.controller";
 import fcRouter from "./modules/fc/fc.controller";
 import cvrRouter from "./modules/cv-ranking/cvr.controller";
 import session = require("express-session");
+import orgRouter from "./modules/org-chatbot/org.controller";
 
 dotenv.config();
 const app = express();
@@ -56,6 +57,7 @@ app.use("/web", websiteRouter);
 app.use("/support-bot", supportBotRouter);
 app.use("/fc", fcRouter);
 app.use("/cvr", cvrRouter);
+app.use("/org", orgRouter);
 
 const port = process.env.PORT || 3008;
 
