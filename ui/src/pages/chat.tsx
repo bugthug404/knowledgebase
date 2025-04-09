@@ -12,11 +12,12 @@ export default function Chat({
   askCol,
   setAskCol,
 }: {
-  colList: { name: string }[] | null;
+  colList?: { name: string }[] ;
   setError: Function;
   askCol: string;
   setAskCol: Function;
 }) {
+  console.log("Chat ---", colList);
   const [qnaList, setQnaList] = useState<QNAProps[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 

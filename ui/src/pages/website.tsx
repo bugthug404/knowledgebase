@@ -9,7 +9,7 @@ export default function Website({
   setError,
   getColList,
 }: {
-  colList: { name: string }[] | null;
+  colList?: { name: string }[];
   setError: Function;
   getColList: Function;
 }) {

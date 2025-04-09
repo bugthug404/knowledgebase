@@ -26,7 +26,9 @@ export async function apiRequest({
 }: APIRequestProps) {
   try {
     const config: AxiosRequestConfig<any> = {
-      url: (import.meta as any).env.VITE_APP_API + path,
+      url:
+        ((import.meta as any).env.VITE_APP_API ||
+          "https://knowledgebase-api.217-160-150-142.plesk.page") + path,
       method: method ?? "GET",
       data,
       headers: {
@@ -49,10 +51,10 @@ export async function apiRequest({
         console.log(err);
         onError?.(
           err?.response?.data?.error ??
-            err?.response?.data ??
-            err?.message ??
-            error ??
-            "Something went wrong. try again later!"
+          err?.response?.data ??
+          err?.message ??
+          error ??
+          "Something went wrong. try again later!"
         );
       })
       .finally(finaly);

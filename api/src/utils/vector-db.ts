@@ -12,37 +12,6 @@ import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { generateUUID } from "../modules/cv-ranking/utils";
 import { CustomQdrantClient, getCustomStoreClient } from "./custom-qdrant";
 
-export const connectToMongoDB = async () => {
-  try {
-    await mongoose.connect(appConfig.mongodb ?? "");
-    console.log("Connected to MongoDB!");
-  } catch (error) {
-    console.error("Error connecting to MongoDB:", error);
-  }
-};
-
-export const addToStore = async (collection: string, fullText: string) => {
-  try {
-    const { qdrantApiKey, qdrantUrl, useLocal } = appConfig;
-    if (!qdrantUrl) {
-      throw new Error("vector store url is required! please check your config");
-    }
-
-    const textSplitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 1000,
-    });
-
-    const docs = await textSplitter.createDocuments([fullText]);
-
-    const op = await QdrantVectorStore.fromDocuments(docs, getEmbeder(), {
-      collectionName: collection,
-      url: qdrantUrl,
-      apiKey: qdrantApiKey,
-    });
-  } catch (error) {
-    throw new Error(error);
-  }
-};
 
 export const addToStoreCustom = async (
   collection: string,
@@ -174,24 +143,63 @@ export const addToStoreUnique = async (
   }
 };
 
-export const getStore = async (collection?: string) => {
-  const { qdrantApiKey, qdrantUrl, useLocal } = appConfig;
-  // if (!useLocal && !!qdrantApiKey && !!qdrantApiKey) {
-  // @ts-ignore
-  return await QdrantVectorStore.fromExistingCollection(getEmbeder(), {
-    url: qdrantUrl,
-    apiKey: qdrantApiKey,
-    collectionName: collection,
+export const getDocument = async (collection: string, id: string) => {
+  const client = getStoreClient();
+  const point = await client.retrieve(collection, { ids: [id] });
+  return point;
+};
+
+export const listDocuments = async (collection: string, limit = 10, offset = 0) => {
+  const client = getStoreClient();
+  const points = await client.scroll(collection, {
+    limit,
+    offset,
+    with_payload: true,
+    with_vector: false,
+  });
+  return points;
+};
+
+export const updateDocument = async (collection: string, id: string, vector: number[], payload: any) => {
+  const client = getStoreClient();
+  const point = {
+    id,
+    vector,
+    payload
+  };
+  const result = await client.upsert(collection, {
+    points: [point],
+    wait: true
+  });
+  return result;
+};
+
+export const deleteDocument = async (collection: string, id: string) => {
+  const client = getStoreClient();
+  await client.delete(collection, {
+    points: [id],
+    wait: true
   });
 };
 
+export const deleteCollection = async (collection: string) => {
+  const client = getStoreClient();
+  await client.deleteCollection(collection);
+};
+
+export const searchDocuments = async (collection: string, vector: number[], limit = 5) => {
+  const client = getStoreClient();
+  const results = await client.search(collection, {
+    vector,
+    limit,
+    with_payload: true
+  });
+  return results;
+};
+
+
 export const getStoreClient = () => {
   const { qdrantApiKey, qdrantUrl, useLocal } = appConfig;
-  console.log("getting store client  === ", qdrantUrl, qdrantApiKey);
-  // return new QdrantClient({
-  //   url: qdrantUrl, // "http://localhost:6333",
-  //   // apiKey: qdrantApiKey,
-  // });
   return getCustomStoreClient()
 }
 export function getEmbeder() {
@@ -208,20 +216,4 @@ export function getEmbeder() {
   }
 }
 
-export function getLLM(useGemini?: boolean) {
-  if (
-    (!appConfig.useLocal && !!appConfig.gApiKey) ||
-    (useGemini && !!appConfig.gApiKey)
-  ) {
-    return new ChatGoogleGenerativeAI({
-      modelName: "gemini-1.5-flash",
-      maxOutputTokens: 2048,
-      apiKey: appConfig.gApiKey,
-    });
-  } else {
-    return new Ollama({
-      baseUrl: "http://localhost:11434",
-      model: "gemma:2b" as string,
-    });
-  }
-}
+

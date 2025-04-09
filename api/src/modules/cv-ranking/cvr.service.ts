@@ -29,6 +29,7 @@ import {
   GenerativeModel,
   GoogleGenerativeAI,
 } from "@google/generative-ai";
+import { appConfig } from "../../app-config";
 
 export async function addDocument(req: Request, res: Response) {
   try {
@@ -208,7 +209,7 @@ export async function getSimilarityScore(req: Request, res: Response) {
     }
 
     if (!genAI || !generativeModel) {
-      genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
+      genAI = new GoogleGenerativeAI(appConfig.gApiKey);
 
       generativeModel = genAI.getGenerativeModel({
         model: "gemini-1.5-flash",

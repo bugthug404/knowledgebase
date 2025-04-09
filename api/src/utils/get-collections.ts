@@ -1,16 +1,18 @@
 // get all collections from qdrant
 
 import { QdrantClient } from "@qdrant/js-client-rest";
-import { appConfig } from "./app-config";
+import { appConfig } from "../app-config";
 import { getStore, getStoreClient } from "./db";
+import axios from "axios";
 
 export async function getCollectionList() {
   const client = getStoreClient();
 
   const list = await client.getCollections();
-
-  console.log("list", list.collections.length);
-  return list.collections;
+  // @ts-ignore
+  console.log("list", list);
+  // @ts-ignore
+  return list?.result?.collections || [];
 }
 
 export async function checkExistingCollection(collectionName: string) {

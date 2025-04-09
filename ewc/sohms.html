@@ -51,8 +51,27 @@
             botId: "ohms",
             showPoweredBy: false,
             enableTranscriptDownload: false,
-            showConversationsButton: false,
+            showConversationsButton: true,
             hideWidget: !!window?.hideWidget, // This hides the widget initially
+          });
+          let loaded = false;
+
+          window.addEventListener("message", function (event) {
+            if (event.data.name === "webchatOpened") {
+              console.log("open");
+              setTimeout(() => {
+                if (loaded) return;
+                console.log("timeout");
+                window.botpressWebChat.sendEvent({
+                  type: "proactive-trigger",
+                  channel: "web",
+                  payload: {
+                    text: "fake message",
+                  },
+                });
+                loaded = true;
+              }, 5000);
+            }
           });
 
           // You can optionally clear the password field here

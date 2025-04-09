@@ -12,7 +12,7 @@ export default function FcChat({
   askCol,
   setAskCol,
 }: {
-  colList: { name: string }[] | null;
+  colList?: { name: string }[];
   setError: Function;
   askCol: string;
   setAskCol: Function;

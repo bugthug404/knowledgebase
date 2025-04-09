@@ -5,3 +5,7 @@
 .no-tailwind {
   all: unset;
 }
+
+.debug {
+  border: 1px solid red;
+}

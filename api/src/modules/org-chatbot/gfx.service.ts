@@ -6,6 +6,7 @@ import { askFcChain } from "../../utils/ask-chain";
 import { FunctionDeclaration } from "@google/generative-ai";
 import { searchDatabase, searchDatabaseFD } from "./gfx.functions";
 
+const memoryStorage: { [key: string]: any } = {};
 export async function askGfxBot(req: Request, res: Response) {
   console.log("ask document");
   try {
@@ -27,7 +28,7 @@ export async function askGfxBot(req: Request, res: Response) {
 
     save user provided data to addToSessionMemory.
     
-    Generate response: find answer from sacred ohms database.
+    Generate response: find answer from database.
     `;
 
     const functions = {
@@ -43,6 +44,7 @@ export async function askGfxBot(req: Request, res: Response) {
       systemPrompt,
       functions,
       functionDeclarations: [searchDatabaseFD] as FunctionDeclaration[],
+      memoryStorage,
     });
 
     res

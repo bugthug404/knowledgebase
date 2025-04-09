@@ -10,7 +10,7 @@ export default function Document({
   setError,
   getColList,
 }: {
-  colList: { name: string }[] | null;
+  colList?: { name: string }[];
   setError: Function;
   getColList: Function;
 }) {
@@ -27,7 +27,7 @@ export default function Document({
       reader.readAsDataURL(file?.[0]);
 
       reader.onload = (event) => {
-        const data = event.target?.result as BinaryData;
+        const data = event.target?.result as any;
         apiRequest({
           path: "/doc/add",
           method: "POST",

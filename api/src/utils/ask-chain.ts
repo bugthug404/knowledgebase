@@ -9,11 +9,8 @@ import {
   GenerateContentResult,
   GoogleGenerativeAI,
 } from "@google/generative-ai";
-import {
-  addToSessionMemory,
-  addToSessionMemoryFD,
-  allowPersonalInfo,
-} from "./functions";
+import { appConfig } from "../app-config";
+import { addGeminiSessionMemoryFD, addToSessionMemory, allowPersonalInfo } from "../modules/org-chatbot/functions/session-memory-function";
 
 export async function askChain({
   collection,
@@ -53,7 +50,7 @@ export async function askChainCustom({
 }) {
   console.log("askChainCustom");
   const client = getStoreClient();
-  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
+  const genAI = new GoogleGenerativeAI(appConfig.gApiKey);
   const generativeModel = genAI.getGenerativeModel({
     // Use a model that supports function calling, like a Gemini 1.5 model
     model: "gemini-1.5-flash",
@@ -119,7 +116,7 @@ export async function askChainCustom({
 
 let session: { [key: string]: Content[] } = {};
 
-const memoryStorage: { [key: string]: any } = {};
+const memStore: { [key: string]: any } = {};
 export async function askFcChain({
   collection,
   query,
@@ -127,6 +124,8 @@ export async function askFcChain({
   systemPrompt,
   functions,
   functionDeclarations,
+  initialMemory,
+  memoryStorage = memStore,
 }: {
   collection: string;
   query: string;
@@ -134,19 +133,27 @@ export async function askFcChain({
   systemPrompt?: string;
   functions: { [key: string]: Function };
   functionDeclarations: FunctionDeclaration[];
+  initialMemory?: Content[];
+  memoryStorage?: { [key: string]: any };
 }) {
-  functions.addToSessionMemory = ({ keyName, value }) => {
-    return addToSessionMemory(keyName, value, (k, v) => {
+  functions.addToSessionMemory = ({ keyNames, values, ...rest }) => {
+    return addToSessionMemory(keyNames, values, (k: string[], v: string[]) => {
+      const newitems = {};
+
+      k.forEach((k, i) => {
+        newitems[k] = v[i];
+      });
+
       memoryStorage[sessionid] = {
         ...memoryStorage[sessionid],
-        [k]: v,
+        ...newitems,
         updatedAt: now.toISOString(),
       };
     });
   };
 
   const now = new Date();
-  session[sessionid] = session[sessionid] || [];
+  session[sessionid] = session[sessionid] || initialMemory ? initialMemory : [];
 
   function removeOldSessions(memoryStorage, expirationTimeInHours = 1) {
     const oneHourAgo = new Date(
@@ -163,14 +170,14 @@ export async function askFcChain({
   }
   removeOldSessions(memoryStorage, 1);
 
-  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
+  const genAI = new GoogleGenerativeAI(appConfig.gApiKey);
 
   const sessiontData = JSON.stringify(memoryStorage?.[sessionid]);
 
   const generativeModel = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
     tools: [
-      { functionDeclarations: [...functionDeclarations, addToSessionMemoryFD] },
+      { functionDeclarations: [...functionDeclarations, addGeminiSessionMemoryFD] },
     ] as FunctionDeclarationsTool[],
     safetySettings: [allowPersonalInfo],
     systemInstruction:
@@ -183,6 +190,7 @@ export async function askFcChain({
   });
 
   const today = new Date();
+  console.log("sessiontData", sessiontData);
   const pomt = `Query: ${query.replace(/\s+/g, " ")}
   SessionStorageContext: ${sessiontData}
   User's current date and time is ${today.toDateString()}

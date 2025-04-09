@@ -17,6 +17,7 @@ export async function getCollections(req: Request, res: Response) {
 
     res.status(200).json({ data });
   } catch (error) {
+    console.log("getCollections -- ", error);
     res.status(500).json({ error: error.message ?? "Server Error" });
   }
 }

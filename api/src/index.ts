@@ -6,11 +6,17 @@ import websiteRouter from "./modules/website/website.controller";
 import collectionRouter from "./modules/collection/collection.controller";
 import https from "https";
 import fs from "fs";
-import supportBotRouter from "./modules/support-bot/support-bot.controller";
 import fcRouter from "./modules/fc/fc.controller";
 import cvrRouter from "./modules/cv-ranking/cvr.controller";
 import session = require("express-session");
 import orgRouter from "./modules/org-chatbot/org.controller";
+import vectorRouter from "./modules/vector/vector.controller";
+
+// @ts-ignore
+if (typeof PhusionPassenger !== "undefined") {
+  // @ts-ignore
+  PhusionPassenger.configure({ autoInstall: false });
+}
 
 dotenv.config();
 const app = express();
@@ -54,12 +60,13 @@ app.get("/", (req, res) => {
 app.use("/doc", documentRouter);
 app.use("/col", collectionRouter);
 app.use("/web", websiteRouter);
-app.use("/support-bot", supportBotRouter);
 app.use("/fc", fcRouter);
 app.use("/cvr", cvrRouter);
 app.use("/org", orgRouter);
+app.use("/vector", vectorRouter);
 
 const port = process.env.PORT || 3008;
+
 
 if (process.env.USE_LOCAL_SSL) {
   const httpsOptions = {
@@ -72,7 +79,12 @@ if (process.env.USE_LOCAL_SSL) {
     console.log(`server started on port https://localhost:${port} `);
   });
 } else {
-  app.listen(port, () => {
-    console.log(`app started on port http://localhost:${port} `);
-  });
+  // @ts-ignore
+  if (typeof PhusionPassenger !== "undefined") {
+    app.listen("passenger");
+  } else {
+    app.listen(port, () => {
+      console.log(`app started on port http://localhost:${port} `);
+    });
+  }
 }

@@ -7,6 +7,11 @@ export function generateUUID() {
   });
 }
 
+export function generateUUID2(): string {
+  return Math.random().toString(36).substring(2) +
+    Date.now().toString(36);
+}
+
 const fullQuery3 = `
 
 System: strictly do not use markdown formating for the output. keep response presice & to the point. strictly follow output format example. strictly do not use new line characters in output. get candidate information from resume. Make sure to return valid JSON.

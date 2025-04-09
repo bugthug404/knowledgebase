@@ -9,3 +9,5 @@ secret
 storage
 bun.lockb
 temp.txt
+.turbo
+Modelfile

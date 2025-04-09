@@ -19,12 +19,13 @@ import {
   myInformationFD,
 } from "./functions";
 import { getEmbeder, getStoreClient } from "../../utils/db";
+import { appConfig } from "../../app-config";
 
 export async function testGenAI(req: Request, res: Response) {
   try {
     const { q: prompt } = req.query;
 
-    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
+    const genAI = new GoogleGenerativeAI(appConfig.gApiKey);
 
     // Executable function code. Put it in a map keyed by the function name
     // so that you can call it once you get the name string from the model.
@@ -180,7 +181,7 @@ export async function asking(req: Request, res: Response) {
     const { query: prompt } = req.query;
     // chatHistory.push({ role: "user", parts: [{ text:  "1"+prompt as string }] });
 
-    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
+    const genAI = new GoogleGenerativeAI(appConfig.gApiKey);
 
     // Executable function code. Put it in a map keyed by the function name
     // so that you can call it once you get the name string from the model.
